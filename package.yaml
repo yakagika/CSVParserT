@@ -1,4 +1,4 @@
-name:                CSVParser
+name:                textparser
 version:             0.1.0.0
 github:              "githubuser/CSVParser"
 license:             BSD3
@@ -40,7 +40,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - CSVParser
+    - textparser
 
 tests:
   CSVParser-test:

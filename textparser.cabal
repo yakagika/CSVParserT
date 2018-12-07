@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ed18c649f3ad2724ca4f1445baeb60f484156f3035bceab97a3e2731f8d69f88
+-- hash: 6c62d2ed4c37c5c747554dc4727c5e190c0b127ff1e10247eb0e32b1dd35d968
 
 name:           textparser
 version:        0.1.0.0
@@ -30,7 +30,7 @@ library
       CSVParserT
       Lib
   other-modules:
-      Paths_CSVParser
+      Paths_textparser
   hs-source-dirs:
       src
   build-depends:
@@ -46,18 +46,18 @@ library
 executable CSVParser-exe
   main-is: Main.hs
   other-modules:
-      Paths_CSVParser
+      Paths_textparser
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      CSVParser
-    , base >=4.7 && <5
+      base >=4.7 && <5
     , conduit
     , deepseq
     , parallel
     , parsec
     , text
+    , textparser
     , vector
   default-language: Haskell2010
 
@@ -65,7 +65,7 @@ test-suite CSVParser-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_CSVParser
+      Paths_textparser
   hs-source-dirs:
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
