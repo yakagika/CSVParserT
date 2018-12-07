@@ -23,6 +23,10 @@ dependencies:
 - base >= 4.7 && < 5
 - text
 - parsec
+- conduit
+- deepseq
+- vector
+- parallel
 
 library:
   source-dirs: src
