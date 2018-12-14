@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6c62d2ed4c37c5c747554dc4727c5e190c0b127ff1e10247eb0e32b1dd35d968
+-- hash: 736bdae9db9d9f4f59c30287719e145580fcaf441db45f497da74c329a2f3fbb
 
 name:           textparser
 version:        0.1.0.0
@@ -28,7 +28,7 @@ source-repository head
 library
   exposed-modules:
       CSVParserT
-      Lib
+      CSVParserTLazy
   other-modules:
       Paths_textparser
   hs-source-dirs:
