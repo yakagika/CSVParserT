@@ -19,6 +19,46 @@ import              Data.Either
 import Control.Parallel.Strategies hiding (parMap)
 import Control.Parallel
 
+
+------------------------------------------------------------------
+-- Genral Function
+------------------------------------------------------------------
+
+-- List Utils for Haskell Platform Environment
+startswith :: Eq a => [a] -> [a] -> Bool
+startswith = L.isPrefixOf
+
+
+spanList :: ([a] -> Bool) -> [a] -> ([a], [a])
+
+spanList _ [] = ([],[])
+spanList func list@(x:xs) =
+    if func list
+       then (x:ys,zs)
+       else ([],list)
+    where (ys,zs) = spanList func xs
+
+breakList :: ([a] -> Bool) -> [a] -> ([a], [a])
+breakList func = spanList (not . func)
+
+split :: Eq a => [a] -> [a] -> [[a]]
+split _ [] = []
+split delim str =
+    let (firstline, remainder) = breakList (startswith delim) str
+        in
+        firstline : case remainder of
+                                   [] -> []
+                                   x -> if x == delim
+                                        then [] : []
+                                        else split delim
+                                                 (drop (length delim) x)
+
+join :: [a] -> [[a]] -> [a]
+join delim l = concat (L.intersperse delim l)
+
+replace :: Eq a => [a] -> [a] -> [a] -> [a]
+replace old new l = join new . split old $ l
+
 parMap :: (a -> b) -> [a] -> Eval [b]
 parMap f [] = return []
 parMap f !(a:as)  = do
@@ -26,6 +66,10 @@ parMap f !(a:as)  = do
     bs <- parMap f as
     return (b:bs) 
 
+
+------------------------------------------------------------------
+-- Parser
+------------------------------------------------------------------
 
 csvFile = sepBy line eol 
 line = sepBy cell (char ',') 
@@ -76,9 +120,19 @@ readCSVT path   = openFile  path ReadMode   >>= \h
                         Right r ->  return r            
 -}
 
+-- String をCSVとして出力可能にする.
+toCsvStr :: String -> String
+toCsvStr  = ((<> "\"") . ("\"" <>)) . (replace "\"" "\"\"")  
+
+hPutCsvLn :: Handle -> [TL.Text] ->  IO ()
+hPutCsvLn wHandle = (TLO.hPutStrLn wHandle)
+                    .TL.concat
+                    .(L.intersperse (TL.pack ","))
+                    
+
 writeCSVT :: FilePath -> [[TL.Text]] -> IO ()
 writeCSVT path xs   =  openFile path WriteMode >>= \handle 
-                    -> mapM_ ((TO.hPutStrLn handle) . TL.toStrict . TL.concat . (L.intersperse (TL.pack ","))) xs
+                    -> mapM_ (hPutCsvLn handle) xs
                     >> hClose handle
 
 
