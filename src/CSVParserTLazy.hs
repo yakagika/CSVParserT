@@ -124,11 +124,18 @@ readCSVT path   = openFile  path ReadMode   >>= \h
 toCsvStr :: String -> String
 toCsvStr  = ((<> "\"") . ("\"" <>)) . (replace "\"" "\"\"")  
 
+toCsvText :: TL.Text -> TL.Text 
+toCsvText  = ((<> quo) . (quo <>)) . (TL.replace quo quoq)  
+    where 
+        quo  = TL.pack "\""
+        quoq = TL.pack "\"\""
+
 hPutCsvLn :: Handle -> [TL.Text] ->  IO ()
 hPutCsvLn wHandle = (TLO.hPutStrLn wHandle)
                     .TL.concat
                     .(L.intersperse (TL.pack ","))
-                    
+                    . map toCsvText
+
 
 writeCSVT :: FilePath -> [[TL.Text]] -> IO ()
 writeCSVT path xs   =  openFile path WriteMode >>= \handle 
