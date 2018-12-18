@@ -2,7 +2,7 @@
 
 {-# LANGUAGE BangPatterns #-}
 
-module CSVParserTLazy  (parseCSVT,readCSVTWin,readCSVT,writeCSVT) where
+module CSVParserTLazy  (parseCSVT,readCSVTWin,readCSVT,writeCSVT,hPutCsvLn,toCsvText) where
 
 import qualified    Data.Text                   as T
 import              Data.Text                   (Text)
