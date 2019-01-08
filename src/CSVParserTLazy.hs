@@ -2,7 +2,13 @@
 
 {-# LANGUAGE BangPatterns #-}
 
-module CSVParserTLazy  (parseCSVT,readCSVTWin,readCSVT,writeCSVT,hPutCsvLn,toCsvText) where
+module CSVParserTLazy   ( parseCSVT
+                        , parseCSVTError
+                        , readCSVTWin
+                        , readCSVT
+                        , writeCSVT
+                        , hPutCsvLn
+                        , toCsvText)            where
 
 import qualified    Data.Text                   as T
 import              Data.Text                   (Text)
@@ -21,7 +27,7 @@ import Control.Parallel
 
 
 ------------------------------------------------------------------
--- Genral Function
+-- * Genral Function
 ------------------------------------------------------------------
 
 -- List Utils for Haskell Platform Environment
@@ -68,7 +74,7 @@ parMap f !(a:as)  = do
 
 
 ------------------------------------------------------------------
--- Parser
+-- * Parser
 ------------------------------------------------------------------
 
 csvFile = sepBy line eol 
@@ -98,8 +104,11 @@ parseCSVTErr input = case parse csvFile "Can not Parse Strings" input of
     Right a -> a
     Left  a -> error $ "Can not parse :" ++ show a 
 
+------------------------------------------------------------------
+-- * Input and Output 
+------------------------------------------------------------------
 
--- encoding for Japanese on Windows
+-- ^ encoding for Japanese on Windows
 cpWin = "cp932" 
 type Encode = String 
 
