@@ -27,6 +27,7 @@ dependencies:
 - deepseq
 - vector
 - parallel
+- template-haskell
 
 library:
   source-dirs: src

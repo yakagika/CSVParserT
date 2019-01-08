@@ -40,6 +40,7 @@ packages:
 extra-deps: 
 - control-0.1.1.0@sha256:f1109598851c73166824cc58b167481c523682d797184b574df162085d5b0065
 - basic-0.1.0.0@sha256:5394a85e04f5624ce123a38f0183e49125848f28fbfc683d4432e8b22664befd
+- template-0.2.0.10@sha256:f822de4d34c45bc84b33a61bc112c15fedee6fa6dc414c62b10456395a868f85
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

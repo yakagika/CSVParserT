@@ -1,9 +1,10 @@
 -- file csvParserT.hs
 
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module CSVParserTLazy   ( parseCSVT
-                        , parseCSVTError
+                        , parseCSVTErr
                         , readCSVTWin
                         , readCSVT
                         , writeCSVT
@@ -22,6 +23,7 @@ import              Data.Maybe
 import              System.IO
 import              Control.DeepSeq
 import              Data.Either
+import Language.Haskell.TH
 import Control.Parallel.Strategies hiding (parMap)
 import Control.Parallel
 
@@ -101,8 +103,8 @@ parseCSVT input = parse csvFile "Can not Parse Strings" input
 
 parseCSVTErr :: TL.Text -> [[TL.Text]]
 parseCSVTErr input = case parse csvFile "Can not Parse Strings" input of 
-    Right a -> a
-    Left  a -> error $ "Can not parse :" ++ show a 
+    Right a     -> a
+    Left  err   -> error $ "Can not parse :" ++ show err 
 
 ------------------------------------------------------------------
 -- * Input and Output 
@@ -147,5 +149,65 @@ writeCSVT :: FilePath -> [[TL.Text]] -> IO ()
 writeCSVT path xs   =  openFile path WriteMode >>= \handle 
                     -> mapM_ (hPutCsvLn handle) xs
                     >> hClose handle
+
+------------------------------------------------------------------
+-- * Load ; for TemplateHaskell
+------------------------------------------------------------------
+-- | Load Csv File while compiling 
+loadCSVT :: FilePath -> Q Exp
+loadCSVT filepath = do 
+    str <- runIO $ readCSVT filepath
+    [e| x |]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.0.
+-- This file has been generated from package.yaml by hpack version 0.31.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 736bdae9db9d9f4f59c30287719e145580fcaf441db45f497da74c329a2f3fbb
+-- hash: 003c8b56dbc9f06b9c6c69c97d33206b81e6cf6ec0cfc294065f68eb2514a495
 
 name:           textparser
 version:        0.1.0.0
@@ -39,6 +39,7 @@ library
     , deepseq
     , parallel
     , parsec
+    , template-haskell
     , text
     , vector
   default-language: Haskell2010
@@ -56,6 +57,7 @@ executable CSVParser-exe
     , deepseq
     , parallel
     , parsec
+    , template-haskell
     , text
     , textparser
     , vector
@@ -76,6 +78,7 @@ test-suite CSVParser-test
     , deepseq
     , parallel
     , parsec
+    , template-haskell
     , text
     , vector
   default-language: Haskell2010
