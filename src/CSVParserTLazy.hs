@@ -116,6 +116,9 @@ parseCSVTErr input = case parse csvFile "Can not Parse Strings" input of
 cpWin = "cp932" 
 type Encode = String 
 
+
+
+-- lines を使っているので \r\n がMac及びLinaxでは処理できない
 readCSVTWin :: FilePath -> IO [[TL.Text]]
 readCSVTWin path    =   openFile path ReadMode  >>= \h 
                     ->  mkTextEncoding cpWin 
@@ -166,11 +169,9 @@ instance Lift TL.Text where
 
 -- | Load Csv File while compiling 
 loadCSVT :: FilePath -> Q Exp
-loadCSVT filepath = do 
-    str <- runIO $ readCSVTACol filepath
-    [e| str |]
-
-
+loadCSVT filepath = do
+    cs <-  runIO $ TLO.readFile filepath 
+    [e| cs |]
 
 
 
