@@ -93,6 +93,10 @@ eol =   try (string "\n\r")
 parseCSVT :: TL.Text -> Either ParseError [[TL.Text]]
 parseCSVT input = parse csvFile "Can not Parse Strings" input
 
+parseCSVTErr :: TL.Text -> [[TL.Text]]
+parseCSVTErr input = case parse csvFile "Can not Parse Strings" input of 
+    Right a -> a
+    Left  a -> error $ "Can not parse :" ++ show a 
 
 
 -- encoding for Japanese on Windows
@@ -104,21 +108,14 @@ readCSVTWin path    =   openFile path ReadMode  >>= \h
                     ->  mkTextEncoding cpWin 
                     >>= hSetEncoding h
                     >>  TLO.hGetContents h      >>= \cs 
-                    ->  return $ concat . runEval $ parMap ((fromRight []) . parseCSVT) $ TL.lines cs 
-                    -- Errorも扱えるようにする
+                    ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
 
 
 readCSVT :: FilePath -> IO [[TL.Text]]
 readCSVT path   = openFile  path ReadMode   >>= \h 
                 ->  TLO.hGetContents h      >>= \cs 
-                ->  return $ concat . runEval $ parMap ((fromRight []) . parseCSVT) $ TL.lines cs 
+                ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
 
-{-
-                        
-                        Left e  -> putStrLn "Error parsing input:"
-                                >> print e >> return [] 
-                        Right r ->  return r            
--}
 
 -- String をCSVとして出力可能にする.
 toCsvStr :: String -> String
