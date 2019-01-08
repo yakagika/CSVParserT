@@ -25,6 +25,7 @@ import              System.IO
 import              Control.DeepSeq
 import              Data.Either
 import Language.Haskell.TH
+import Language.Haskell.TH.Syntax (Lift(..))
 import Control.Parallel.Strategies hiding (parMap)
 import Control.Parallel
 
@@ -129,6 +130,11 @@ readCSVT path   = openFile  path ReadMode   >>= \h
                 ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
 
 
+readCSVTACol :: FilePath -> IO [TL.Text]
+readCSVTACol path   = openFile  path ReadMode   >>= \h 
+                ->  TLO.hGetContents h      >>= \cs 
+                ->  return $ concat . concat . runEval $ parMap parseCSVTErr $ TL.lines cs
+
 -- String をCSVとして出力可能にする.
 toCsvStr :: String -> String
 toCsvStr  = ((<> "\"") . ("\"" <>)) . (replace "\"" "\"\"")  
@@ -154,11 +160,15 @@ writeCSVT path xs   =  openFile path WriteMode >>= \handle
 ------------------------------------------------------------------
 -- * Load ; for TemplateHaskell
 ------------------------------------------------------------------
+
+instance Lift TL.Text where
+  lift t = [| TL.pack $(lift $ TL.unpack t) |]
+
 -- | Load Csv File while compiling 
 loadCSVT :: FilePath -> Q Exp
 loadCSVT filepath = do 
-    str <- runIO $ readCSVT filepath
-    [e| x |]
+    str <- runIO $ readCSVTACol filepath
+    [e| str |]
 
 
 
