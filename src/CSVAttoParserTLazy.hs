@@ -137,14 +137,13 @@ readCSVTWin path    =   openFile path ReadMode  >>= \h
                     ->  mkTextEncoding cpWin 
                     >>= hSetEncoding h
                     >>  TLO.hGetContents h      >>= \cs 
-                    ->  return $ parseCSVTErr $ TL.toStrict cs  
+                    ->  return $ concat . runEval $ parMap (parseCSVTErr.TL.toStrict) $ TL.lines cs 
 
 
 readCSVT :: FilePath -> IO [[TL.Text]]
 readCSVT path   = openFile  path ReadMode   >>= \h 
                 ->  TLO.hGetContents h      >>= \cs 
-                ->  return $ parseCSVTErr $ TL.toStrict cs 
-
+                ->  return $ concat . runEval $ parMap (parseCSVTErr.TL.toStrict) $ TL.lines cs 
 
 -- | Convert to CSV format
 toCsvStr :: String -> String
@@ -189,7 +188,7 @@ loadCSVT filepath = do
     [e| cs |]
 
 getSingleCol :: TL.Text -> [TL.Text]
-getSingleCol xs = head $ transpose $ parseCSVTErr $ TL.toStrict xs
+getSingleCol xs = head $ transpose $ parseCSVTErr $ TL.toStrict $ xs
 
 
 
