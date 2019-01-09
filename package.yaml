@@ -28,6 +28,7 @@ dependencies:
 - vector
 - parallel
 - template-haskell
+- attoparsec
 
 library:
   source-dirs: src

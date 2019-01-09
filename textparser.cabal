@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 003c8b56dbc9f06b9c6c69c97d33206b81e6cf6ec0cfc294065f68eb2514a495
+-- hash: 418e70ec37b7374ea1fb2e7fc18fbc7c07b17b03669cc8127522c5f54fd623c8
 
 name:           textparser
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      CSVAttoParserTLazy
       CSVParserT
       CSVParserTLazy
   other-modules:
@@ -34,7 +35,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      attoparsec
+    , base >=4.7 && <5
     , conduit
     , deepseq
     , parallel
@@ -52,7 +54,8 @@ executable CSVParser-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      attoparsec
+    , base >=4.7 && <5
     , conduit
     , deepseq
     , parallel
@@ -73,6 +76,7 @@ test-suite CSVParser-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       CSVParser
+    , attoparsec
     , base >=4.7 && <5
     , conduit
     , deepseq

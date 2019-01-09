@@ -5,7 +5,7 @@
 {-# LANGUAGE BangPatterns    #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module CSVParserTLazy   ( parseCSVT
+module CSVAttoParserTLazy   ( parseCSVT
                         , parseCSVTErr
                         , readCSVTWin
                         , readCSVT
@@ -21,8 +21,9 @@ import qualified    Data.Text.Lazy              as TL
 import qualified    Data.Text.IO                as TO
 import qualified    Data.Text.Lazy.IO           as TLO
 import qualified    Data.List                   as L
-import              Text.Parsec
-import              Text.Parsec.Text.Lazy
+import              Data.Attoparsec.Combinator
+import              Data.Attoparsec.Text.Lazy
+import              Control.Applicative
 import              Data.Maybe
 import              System.IO
 import              Control.DeepSeq
@@ -91,33 +92,34 @@ transpose mx = runEval $ parMap (getIndices mx) $ [0..(lenLine mx)]
 ------------------------------------------------------------------
 -- * Parser
 ------------------------------------------------------------------
+noneOf cs           = satisfy (\c -> not (elem c cs))
 
 csvFile = sepBy line eol 
 line = sepBy cell (char ',') 
-cell = (quotedCell <|> many (noneOf ",\n\r")) >>= (\res -> return $! TL.pack res)
+cell = (quotedCell <|> many' (noneOf ",\n\r")) >>= (\res -> return $! TL.pack res)
   
 quotedCell =  char  '"'
-           >> many quotedChar >>= \content 
+           >> many' quotedChar >>= \content 
            -> (char '"' <?> "quote at end of cell")
            >> return content
 
 quotedChar = 
         noneOf "\""
-    <|> try (string  "\"\"" >> return '"')
+    <|> try (string  (T.pack "\"\"") >> return '"')
 
-eol =   try (string "\n\r")
-    <|> try (string "\r\n")
-    <|> string "\n"
-    <|> string "\r"
+eol =   try (string (T.pack "\n\r"))
+    <|> try (string (T.pack "\r\n"))
+    <|> string (T.pack "\n")
+    <|> string (T.pack "\r")
     <?> "end of line"
 
-parseCSVT :: TL.Text -> Either ParseError [[TL.Text]]
-parseCSVT input = parse csvFile "Can not Parse Strings" input
+parseCSVT :: T.Text -> Either String [[TL.Text]]
+parseCSVT input = parseOnly csvFile input
 
-parseCSVTErr :: TL.Text -> [[TL.Text]]
-parseCSVTErr input = case parse csvFile "Can not Parse Strings" input of 
+parseCSVTErr :: T.Text -> [[TL.Text]]
+parseCSVTErr input = case parseOnly csvFile input of 
     Right a     -> a
-    Left  err   -> error $ "Can not parse :" ++ show err 
+    Left err   -> error $ "Can not parse :" ++ show err 
 
 ------------------------------------------------------------------
 -- * Input and Output 
@@ -135,19 +137,14 @@ readCSVTWin path    =   openFile path ReadMode  >>= \h
                     ->  mkTextEncoding cpWin 
                     >>= hSetEncoding h
                     >>  TLO.hGetContents h      >>= \cs 
-                    ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
+                    ->  return $ parseCSVTErr $ TL.toStrict cs  
 
 
 readCSVT :: FilePath -> IO [[TL.Text]]
 readCSVT path   = openFile  path ReadMode   >>= \h 
                 ->  TLO.hGetContents h      >>= \cs 
-                ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
+                ->  return $ parseCSVTErr $ TL.toStrict cs 
 
-
-readCSVTACol :: FilePath -> IO [TL.Text]
-readCSVTACol path   = openFile  path ReadMode   >>= \h 
-                ->  TLO.hGetContents h      >>= \cs 
-                ->  return $ concat . concat . runEval $ parMap parseCSVTErr $ TL.lines cs
 
 -- | Convert to CSV format
 toCsvStr :: String -> String
@@ -192,7 +189,7 @@ loadCSVT filepath = do
     [e| cs |]
 
 getSingleCol :: TL.Text -> [TL.Text]
-getSingleCol xs = head $ transpose $ parseCSVTErr xs
+getSingleCol xs = head $ transpose $ parseCSVTErr $ TL.toStrict xs
 
 
 
