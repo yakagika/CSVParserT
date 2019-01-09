@@ -10,7 +10,8 @@ module CSVParserTLazy   ( parseCSVT
                         , writeCSVT
                         , hPutCsvLn
                         , toCsvText
-                        , loadCSVT)            where
+                        , loadCSVT
+                        , getSingleCol)            where
 
 import qualified    Data.Text                   as T
 import              Data.Text                   (Text)
