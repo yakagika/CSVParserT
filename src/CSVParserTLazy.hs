@@ -76,6 +76,14 @@ parMap f !(a:as)  = do
     bs <- parMap f as
     return (b:bs) 
 
+transpose :: [[TL.Text]] -> [[TL.Text]]
+transpose mx = runEval $ parMap (getIndices mx) $ [0..(lenLine mx)]
+    where
+     lenLine :: [[TL.Text]] -> Int
+     lenLine line = L.maximum $ L.map L.length line
+
+     getIndices :: [[TL.Text]] -> Int -> [TL.Text]
+     getIndices xs i = L.map (\x -> if (L.length x) > i then x !! i else TL.empty) xs
 
 ------------------------------------------------------------------
 -- * Parser
@@ -148,6 +156,7 @@ toCsvText  = ((<> quo) . (quo <>)) . (TL.replace quo quoq)
         quo  = TL.pack "\""
         quoq = TL.pack "\"\""
 
+-- | output File as a CSV
 hPutCsvLn :: Handle -> [TL.Text] ->  IO ()
 hPutCsvLn wHandle = (TLO.hPutStrLn wHandle)
                     .TL.concat
@@ -167,12 +176,23 @@ writeCSVT path xs   =  openFile path WriteMode >>= \handle
 instance Lift TL.Text where
   lift t = [| TL.pack $(lift $ TL.unpack t) |]
 
--- | Load Csv File while compiling 
+{- | Load Csv File while compiling
+
+use this like, 
+
+> loadSingleCol :: FilePath -> [TL.Text]
+> loadSingleCol filePath = getSingleCol $( loadCSVT filePath)
+
+aFile = loadSingleCol "hoge.csv"
+
+-} 
 loadCSVT :: FilePath -> Q Exp
 loadCSVT filepath = do
     cs <-  runIO $ TLO.readFile filepath 
     [e| cs |]
 
+getSingleCol :: TL.Text -> [TL.Text]
+getSingleCol xs = head $ transpose $ parseCSVTErr xs
 
 
 
