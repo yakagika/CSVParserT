@@ -5,17 +5,15 @@
 {-# LANGUAGE BangPatterns    #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module CSVAttoParserTLazy  
-
-{- ( parseCSVT
-                        , parseCSVTErr
-                        , readCSVTWin
-                        , readCSVT
-                        , writeCSVT
-                        , hPutCsvLn
-                        , toCsvText
-                        , loadCSVT
-                        , getSingleCol)            -} where
+module CSVAttoParserTLazy   ( parseCSVT
+                            , parseCSVTErr
+                            , readCSVTWin
+                            , readCSVT
+                            , writeCSVT
+                            , hPutCsvLn
+                            , toCsvText
+                            , loadCSVT
+                            , getSingleCol)         where
 
 import qualified    Data.Text                   as T
 import              Data.Text                   (Text)
