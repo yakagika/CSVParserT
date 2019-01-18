@@ -29,6 +29,7 @@ dependencies:
 - parallel
 - template-haskell
 - attoparsec
+- containers
 
 library:
   source-dirs: src

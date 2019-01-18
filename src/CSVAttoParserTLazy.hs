@@ -13,7 +13,8 @@ module CSVAttoParserTLazy   ( parseCSVT
                             , hPutCsvLn
                             , toCsvText
                             , loadCSVT
-                            , getSingleCol)         where
+                            , getSingleCol
+                            , getTwoColAsMap )         where
 
 import qualified    Data.Text                   as T
 import              Data.Text                   (Text)
@@ -21,6 +22,8 @@ import qualified    Data.Text.Lazy              as TL
 import qualified    Data.Text.IO                as TO
 import qualified    Data.Text.Lazy.IO           as TLO
 import qualified    Data.List                   as L
+import qualified    Data.Map                    as Map
+import              Data.Map                    (Map)
 import              Data.Attoparsec.Text.Lazy
 import              Control.Applicative
 import              Data.Maybe
@@ -79,7 +82,7 @@ parMap f !(a:as)  = do
     return (b:bs) 
 
 transpose :: [[TL.Text]] -> [[TL.Text]]
-transpose mx = runEval $ parMap (getIndices mx) $ [0..(lenLine mx)]
+transpose mx = runEval $ parMap (getIndices mx) $ [0 .. (lenLine mx)]
     where
      lenLine :: [[TL.Text]] -> Int
      lenLine line = L.maximum $ L.map L.length line
@@ -188,8 +191,9 @@ loadCSVT filepath = do
 getSingleCol :: TL.Text -> [TL.Text]
 getSingleCol xs = head $ transpose $ parseCSVTErr xs
 
-
-
+getTwoColAsMap :: TL.Text -> Map TL.Text TL.Text
+getTwoColAsMap xs =  let ys = transpose (parseCSVTErr xs)
+          in Map.fromList $ zip (ys L.!! 0) (ys L.!! 1)
 
 
 
