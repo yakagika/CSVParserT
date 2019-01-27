@@ -14,7 +14,8 @@ module CSVAttoParserTLazy   ( parseCSVT
                             , toCsvText
                             , loadCSVT
                             , getSingleCol
-                            , getTwoColAsMap )         where
+                            , getTwoColAsMap
+                            , transpose )         where
 
 import qualified    Data.Text                   as T
 import              Data.Text                   (Text)
@@ -164,10 +165,20 @@ hPutCsvLn wHandle = (TLO.hPutStrLn wHandle)
                     . map toCsvText
 
 
+-- | Use this if output data is not written in CSV formart
+-- once you use parser, use this.
 writeCSVT :: FilePath -> [[TL.Text]] -> IO ()
 writeCSVT path xs   =  openFile path WriteMode >>= \handle 
                     -> mapM_ (hPutCsvLn handle) xs
                     >> hClose handle
+
+-- | Use this for CSV formatted files
+writeData :: FilePath -> [[TL.Text]] -> IO ()
+writeData path xs   =  openFile path WriteMode >>= \handle 
+                    -> mapM_ ((TLO.hPutStrLn handle).TL.concat.(L.intersperse (TL.pack ","))) xs
+                    >> hClose handle
+
+
 
 ------------------------------------------------------------------
 -- * Load ; for TemplateHaskell
