@@ -4,6 +4,7 @@
 
 {-# LANGUAGE BangPatterns    #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE StrictData #-}
 
 module CSVAttoParserTLazy   ( parseCSVT
                             , parseCSVTErr
