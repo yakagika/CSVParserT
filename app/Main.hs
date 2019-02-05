@@ -1,4 +1,6 @@
 module Main where
+import CSVParserTLazy
+
 
 main :: IO ()
-main = undefined
+main = print "hi"
