@@ -2,9 +2,9 @@ name:                textparser
 version:             0.1.0.0
 github:              "githubuser/CSVParser"
 license:             BSD3
-author:              "Author name here"
+author:              "Kaya Akagi"
 maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+copyright:           "2018 Kaya Akagi"
 
 extra-source-files:
 - README.md

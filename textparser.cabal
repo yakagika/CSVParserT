@@ -4,16 +4,16 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3dfc3061f6018da14da3cc361296638c213fb9fc35b12e96a0dfd19632ea4815
+-- hash: 9d718a37aceaf4815960a3aab53692afbb94dab51ac5d59109eb5005d38b1aa1
 
 name:           textparser
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/CSVParser#readme>
 homepage:       https://github.com/githubuser/CSVParser#readme
 bug-reports:    https://github.com/githubuser/CSVParser/issues
-author:         Author name here
+author:         Kaya Akagi
 maintainer:     example@example.com
-copyright:      2018 Author name here
+copyright:      2018 Kaya Akagi
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -27,8 +27,8 @@ source-repository head
 
 library
   exposed-modules:
+      CSV.Text.Lazy
       CSVAttoParserTLazy
-      CSVParserT
       CSVParserTLazy
   other-modules:
       Paths_textparser
