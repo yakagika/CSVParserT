@@ -1,5 +1,4 @@
 module Main where
-import CSVParserTLazy
 
 
 main :: IO ()

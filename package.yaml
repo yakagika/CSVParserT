@@ -1,4 +1,4 @@
-name:                textparser
+name:                csv-text-parser
 version:             0.1.0.0
 github:              "githubuser/CSVParser"
 license:             BSD3
@@ -30,6 +30,7 @@ dependencies:
 - template-haskell
 - attoparsec
 - containers
+- unicode-show
 
 library:
   source-dirs: src
@@ -43,8 +44,6 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     - -O2
-    dependencies:
-    - textparser
 
 tests:
   CSVParser-test:

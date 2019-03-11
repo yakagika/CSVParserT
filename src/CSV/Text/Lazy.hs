@@ -36,6 +36,7 @@ import              Language.Haskell.TH
 import              Language.Haskell.TH.Syntax  (Lift(..))
 import              Control.Parallel.Strategies hiding (parMap)
 import              Control.Parallel
+import              Text.Show.Unicode           (ushow)
 
 
 ------------------------------------------------------------------
@@ -122,7 +123,7 @@ parseCSVT input = parse csvFile input
 parseCSVTErr :: TL.Text -> [[TL.Text]]
 parseCSVTErr input = case parse csvFile input of 
     Done a r          -> r
-    Fail a xs err     -> error $ "Can not parse :" ++ show err 
+    Fail a xs err     -> error $ "Can not parse :" ++ ushow err 
 
 ------------------------------------------------------------------
 -- * Input and Output 
