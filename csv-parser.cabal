@@ -4,9 +4,9 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cc727e6be946d03a60ea69f6c97d1c98625a362623ba764730344c6f302e08ac
+-- hash: 91e1464db8324c5ade4b365118a457fa4ebded97fb4e8227b6047b56b16a5f32
 
-name:           csv-text-parser
+name:           csv-parser
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/CSVParser#readme>
 homepage:       https://github.com/githubuser/CSVParser#readme
@@ -29,7 +29,7 @@ library
   exposed-modules:
       CSV.Text.Lazy
   other-modules:
-      Paths_csv_text_parser
+      Paths_csv_parser
   hs-source-dirs:
       src
   build-depends:
@@ -49,7 +49,7 @@ library
 executable CSVParser-exe
   main-is: Main.hs
   other-modules:
-      Paths_csv_text_parser
+      Paths_csv_parser
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
@@ -71,7 +71,7 @@ test-suite CSVParser-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_csv_text_parser
+      Paths_csv_parser
   hs-source-dirs:
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N

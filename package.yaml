@@ -1,4 +1,4 @@
-name:                csv-text-parser
+name:                csv-parser
 version:             0.1.0.0
 github:              "githubuser/CSVParser"
 license:             BSD3
