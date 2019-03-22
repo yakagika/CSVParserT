@@ -96,9 +96,9 @@ parseCSV input = parse csvFile input
 
 {-# INLINE parseCSVErr #-}
 parseCSVErr :: Text -> [[Text]]
-parseCSVErr input = case parse csvFile input of 
-    Done a r          -> r
-    Fail a xs err     -> error $ "Can not parse :" ++ ushow err 
+parseCSVErr input = case parseOnly csvFile input of 
+    Right r          -> r
+    Left  err     -> error $ "Can not parse :" ++ ushow err 
 
 ------------------------------------------------------------------
 -- * Input and Output 
