@@ -6,14 +6,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE StrictData #-}
 
-module CSV.Text.Lazy        ( parseCSVT
-                            , parseCSVTErr
-                            , readCSVTWin
-                            , readCSVT
-                            , writeCSVT
+module CSV.Text.Lazy        ( parseCSV
+                            , parseCSVErr
+                            , readCSVWin
+                            , readCSV
+                            , writeCSV
                             , hPutCsvLn
                             , toCsvText
-                            , loadCSVT
+                            , loadCSV
                             , getSingleCol
                             , getTwoColAsMap
                             , transpose )         where
@@ -59,7 +59,7 @@ transpose mx = runEval $ parMap (getIndices mx) $ [0 .. (lenLine mx)]
      lenLine :: [[Text]] -> Int
      lenLine line = L.maximum $ L.map L.length line
 
-     getIndices :: [[TL.Text]] -> Int -> [TL.Text]
+     getIndices :: [[Text]] -> Int -> [Text]
      getIndices xs i = L.map (\x -> if (L.length x) > i then x !! i else TL.empty) xs
 
 ------------------------------------------------------------------
@@ -94,13 +94,13 @@ eol =   try (string (T.pack "\n\r"))
     <|> string (T.pack "\r")
     <?> "end of line"
 
-{-# INLINE parseCSVT #-}
-parseCSVT :: TL.Text -> Result [[TL.Text]]
-parseCSVT input = parse csvFile input
+{-# INLINE parseCSV #-}
+parseCSV :: Text -> Result [[Text]]
+parseCSV input = parse csvFile input
 
-{-# INLINE parseCSVTErr #-}
-parseCSVTErr :: TL.Text -> [[TL.Text]]
-parseCSVTErr input = case parse csvFile input of 
+{-# INLINE parseCSVErr #-}
+parseCSVErr :: Text -> [[Text]]
+parseCSVErr input = case parse csvFile input of 
     Done a r          -> r
     Fail a xs err     -> error $ "Can not parse :" ++ ushow err 
 
@@ -115,18 +115,18 @@ type Encode = String
 
 
 -- | note : lines を使っているので \r\n がMac及びLinaxでは処理できない
-readCSVTWin :: FilePath -> IO [[TL.Text]]
-readCSVTWin path    =   openFile path ReadMode  >>= \h 
+readCSVWin :: FilePath -> IO [[Text]]
+readCSVWin path    =   openFile path ReadMode  >>= \h 
                     ->  mkTextEncoding cpWin 
                     >>= hSetEncoding h
                     >>  TLO.hGetContents h      >>= \cs 
-                    ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
+                    ->  return $ concat . runEval $ parMap parseCSVErr $ TL.lines cs 
 
 
-readCSVT :: FilePath -> IO [[TL.Text]]
-readCSVT path   = openFile  path ReadMode   >>= \h 
+readCSV :: FilePath -> IO [[Text]]
+readCSV path   = openFile  path ReadMode   >>= \h 
                 ->  TLO.hGetContents h      >>= \cs 
-                ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
+                ->  return $ concat . runEval $ parMap parseCSVErr $ TL.lines cs 
 
 -- | Convert to CSV format
 {-# INLINE toCsvStr #-}
@@ -134,7 +134,7 @@ toCsvStr :: String -> String
 toCsvStr  = ((<> "\"") . ("\"" <>)) . (replace "\"" "\"\"")  
 
 {-# INLINE toCsvText #-}
-toCsvText :: TL.Text -> TL.Text 
+toCsvText :: Text -> Text 
 toCsvText  = ((<> quo) . (quo <>)) . (TL.replace quo quoq)  
     where 
         quo  = TL.pack "\""
@@ -142,7 +142,7 @@ toCsvText  = ((<> quo) . (quo <>)) . (TL.replace quo quoq)
 
 -- | output File as a CSV
 {-# INLINE hPutCsvLn #-}
-hPutCsvLn :: Handle -> [TL.Text] ->  IO ()
+hPutCsvLn :: Handle -> [Text] ->  IO ()
 hPutCsvLn wHandle = (TLO.hPutStrLn wHandle)
                     .TL.concat
                     .(L.intersperse (TL.pack ","))
@@ -151,13 +151,13 @@ hPutCsvLn wHandle = (TLO.hPutStrLn wHandle)
 
 -- | Use this if output data is not written in CSV formart
 -- once you use parser, use this.
-writeCSVT :: FilePath -> [[TL.Text]] -> IO ()
-writeCSVT path xs   =  openFile path WriteMode >>= \handle 
+writeCSV :: FilePath -> [[Text]] -> IO ()
+writeCSV path xs   =  openFile path WriteMode >>= \handle 
                     -> mapM_ (hPutCsvLn handle) xs
                     >> hClose handle
 
 -- | Use this for CSV formatted files
-writeData :: FilePath -> [[TL.Text]] -> IO ()
+writeData :: FilePath -> [[Text]] -> IO ()
 writeData path xs   =  openFile path WriteMode >>= \handle 
                     -> mapM_ ((TLO.hPutStrLn handle).TL.concat.(L.intersperse (TL.pack ","))) xs
                     >> hClose handle
@@ -166,7 +166,7 @@ writeData path xs   =  openFile path WriteMode >>= \handle
 -- * Load ; for TemplateHaskell
 ------------------------------------------------------------------
 
-instance Lift TL.Text where
+instance Lift Text where
   lift t = [| TL.pack $(lift $ TL.unpack t) |]
 
 {- | Load Csv File while compiling
@@ -176,16 +176,16 @@ use this like,
 aFile = getSingleCol $( loadCSVT "hoge.csv")
 
 -} 
-loadCSVT :: FilePath -> Q Exp
-loadCSVT filepath = do
+loadCSV :: FilePath -> Q Exp
+loadCSV filepath = do
     cs <-  runIO $ TLO.readFile filepath 
     [e| cs |]
 
-getSingleCol :: TL.Text -> [TL.Text]
-getSingleCol xs = head $ transpose $ parseCSVTErr xs
+getSingleCol :: Text -> [Text]
+getSingleCol xs = head $ transpose $ parseCSVErr xs
 
-getTwoColAsMap :: TL.Text -> Map TL.Text TL.Text
-getTwoColAsMap xs =  let ys = transpose (parseCSVTErr xs)
+getTwoColAsMap :: Text -> Map Text Text
+getTwoColAsMap xs =  let ys = transpose (parseCSVErr xs)
           in Map.fromList $ zip (ys L.!! 0) (ys L.!! 1)
 
 
