@@ -44,11 +44,12 @@ import              Text.Show.Unicode           (ushow)
 ------------------------------------------------------------------
 
 -- List Utils for Haskell Platform Environment
+{-# INLINE startswith #-}
 startswith :: Eq a => [a] -> [a] -> Bool
 startswith = L.isPrefixOf
 
+{-# INLINE spanList #-}
 spanList :: ([a] -> Bool) -> [a] -> ([a], [a])
-
 spanList _ [] = ([],[])
 spanList func list@(x:xs) =
     if func list
@@ -56,9 +57,11 @@ spanList func list@(x:xs) =
        else ([],list)
     where (ys,zs) = spanList func xs
 
+{-# INLINE breakList #-}
 breakList :: ([a] -> Bool) -> [a] -> ([a], [a])
 breakList func = spanList (not . func)
 
+{-# INLINE split #-}
 split :: Eq a => [a] -> [a] -> [[a]]
 split _ [] = []
 split delim str =
@@ -70,13 +73,15 @@ split delim str =
                                         then [] : []
                                         else split delim
                                                  (drop (length delim) x)
-
+{-# INLINE join #-}
 join :: [a] -> [[a]] -> [a]
 join delim l = concat (L.intersperse delim l)
 
+{-# INLINE replace #-}
 replace :: Eq a => [a] -> [a] -> [a] -> [a]
 replace old new l = join new . split old $ l
 
+{-# INLINE parMap #-}
 parMap :: (a -> b) -> [a] -> Eval [b]
 parMap f [] = return []
 parMap f !(a:as)  = do
@@ -84,6 +89,7 @@ parMap f !(a:as)  = do
     bs <- parMap f as
     return (b:bs) 
 
+{-# INLINE transpose #-}
 transpose :: [[TL.Text]] -> [[TL.Text]]
 transpose mx = runEval $ parMap (getIndices mx) $ [0 .. (lenLine mx)]
     where
@@ -96,17 +102,25 @@ transpose mx = runEval $ parMap (getIndices mx) $ [0 .. (lenLine mx)]
 ------------------------------------------------------------------
 -- * Parser
 ------------------------------------------------------------------
+{-# INLINE noneOf #-}
 noneOf cs           = satisfy (\c -> not (elem c cs))
 
-csvFile = sepBy line eol 
+{-# INLINE csvFile #-}
+csvFile = sepBy line eol
+
+{-# INLINE line #-}
 line = sepBy cell (char ',') 
+
+{-# INLINE cell #-}
 cell = (quotedCell <|> many' (noneOf ",\n\r")) >>= (\res -> return $! TL.pack res)
-  
+
+{-# INLINE quotedCell #-}
 quotedCell =  char  '"'
            >> many' quotedChar >>= \content 
            -> (char '"' <?> "quote at end of cell")
            >> return content
 
+{-# INLINE quotedChar #-}
 quotedChar = 
         noneOf "\""
     <|> try (string  (T.pack "\"\"") >> return '"')
@@ -117,9 +131,11 @@ eol =   try (string (T.pack "\n\r"))
     <|> string (T.pack "\r")
     <?> "end of line"
 
+{-# INLINE parseCSVT #-}
 parseCSVT :: TL.Text -> Result [[TL.Text]]
 parseCSVT input = parse csvFile input
 
+{-# INLINE parseCSVTErr #-}
 parseCSVTErr :: TL.Text -> [[TL.Text]]
 parseCSVTErr input = case parse csvFile input of 
     Done a r          -> r
@@ -150,9 +166,11 @@ readCSVT path   = openFile  path ReadMode   >>= \h
                 ->  return $ concat . runEval $ parMap parseCSVTErr $ TL.lines cs 
 
 -- | Convert to CSV format
+{-# INLINE toCsvStr #-}
 toCsvStr :: String -> String
 toCsvStr  = ((<> "\"") . ("\"" <>)) . (replace "\"" "\"\"")  
 
+{-# INLINE toCsvText #-}
 toCsvText :: TL.Text -> TL.Text 
 toCsvText  = ((<> quo) . (quo <>)) . (TL.replace quo quoq)  
     where 
@@ -160,6 +178,7 @@ toCsvText  = ((<> quo) . (quo <>)) . (TL.replace quo quoq)
         quoq = TL.pack "\"\""
 
 -- | output File as a CSV
+{-# INLINE hPutCsvLn #-}
 hPutCsvLn :: Handle -> [TL.Text] ->  IO ()
 hPutCsvLn wHandle = (TLO.hPutStrLn wHandle)
                     .TL.concat
