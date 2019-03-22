@@ -4,15 +4,15 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 91e1464db8324c5ade4b365118a457fa4ebded97fb4e8227b6047b56b16a5f32
+-- hash: dc3a087b6022b72d79604ba84c21b7bde6e1772e0a4511f857dcc8931af1ea2f
 
 name:           csv-parser
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/CSVParser#readme>
-homepage:       https://github.com/githubuser/CSVParser#readme
-bug-reports:    https://github.com/githubuser/CSVParser/issues
+description:    Please see the README on GitHub at <https://github.com/yakagika/CSVParser#readme>
+homepage:       https://github.com/yakagika/CSVParser#readme
+bug-reports:    https://github.com/yakagika/CSVParser/issues
 author:         Kaya Akagi
-maintainer:     example@example.com
+maintainer:     kaya3728@gmail.com
 copyright:      2018 Kaya Akagi
 license:        BSD3
 license-file:   LICENSE
@@ -23,17 +23,19 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/CSVParser
+  location: https://github.com/yakagika/CSVParser
 
 library
   exposed-modules:
+      CSV.Text
       CSV.Text.Lazy
   other-modules:
       Paths_csv_parser
   hs-source-dirs:
       src
   build-depends:
-      attoparsec
+      MissingH
+    , attoparsec
     , base >=4.7 && <5
     , conduit
     , containers
@@ -52,9 +54,10 @@ executable CSVParser-exe
       Paths_csv_parser
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O3
   build-depends:
-      attoparsec
+      MissingH
+    , attoparsec
     , base >=4.7 && <5
     , conduit
     , containers
@@ -76,11 +79,12 @@ test-suite CSVParser-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      CSVParser
+      MissingH
     , attoparsec
     , base >=4.7 && <5
     , conduit
     , containers
+    , csv-parser
     , deepseq
     , parallel
     , parsec
