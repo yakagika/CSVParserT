@@ -2,9 +2,7 @@
 -- CSV parser for the people who shoult do everithing within Hasekell Platform.
 
 
-{-# LANGUAGE BangPatterns    #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE StrictData #-}
+{-# LANGUAGE BangPatterns, TemplateHaskell, StrictData, Strict #-}
 
 module CSV.Text             ( parseCSV
                             , parseCSVErr
@@ -18,7 +16,7 @@ module CSV.Text             ( parseCSV
                             , getTwoColAsMap
                             , transpose )         where
 
-import              Data.List.Utils             (replace) 
+import              Data.List.Utils             (replace)
 import qualified    Data.Text                   as T
 import              Data.Text                   (Text)
 import qualified    Data.Text.IO                as TO
@@ -46,11 +44,11 @@ parMap f [] = return []
 parMap f !(a:as)  = do
     b  <- rpar (f a)
     bs <- parMap f as
-    return (b:bs) 
+    return (b:bs)
 
 {-# INLINE transpose #-}
 transpose :: [[Text]] -> [[Text]]
-transpose mx = runEval $ parMap (getIndices mx) $ [0 .. (lenLine mx)]
+transpose mx = runEval $ parMap (getIndices mx) $ [0 .. ((lenLine mx )- 1)]
     where
      lenLine :: [[Text]] -> Int
      lenLine line = L.maximum $ L.map L.length line
@@ -68,19 +66,19 @@ noneOf cs           = satisfy (\c -> not (elem c cs))
 csvFile = sepBy line eol
 
 {-# INLINE line #-}
-line = sepBy cell (char ',') 
+line = sepBy cell (char ',')
 
 {-# INLINE cell #-}
 cell = (quotedCell <|> many' (noneOf ",\n\r")) >>= (\res -> return $! T.pack res)
 
 {-# INLINE quotedCell #-}
 quotedCell =  char  '"'
-           >> many' quotedChar >>= \content 
+           >> many' quotedChar >>= \content
            -> (char '"' <?> "quote at end of cell")
            >> return content
 
 {-# INLINE quotedChar #-}
-quotedChar = 
+quotedChar =
         noneOf "\""
     <|> try (string  (T.pack "\"\"") >> return '"')
 
@@ -96,41 +94,41 @@ parseCSV input = parse csvFile input
 
 {-# INLINE parseCSVErr #-}
 parseCSVErr :: Text -> [[Text]]
-parseCSVErr input = case parseOnly csvFile input of 
-    Right r          -> r
-    Left  err     -> error $ "Can not parse :" ++ ushow err 
+parseCSVErr input = case parseOnly csvFile input of
+    Right r     -> r
+    Left  err   -> error $ "Can not parse :" ++ ushow err
 
 ------------------------------------------------------------------
--- * Input and Output 
+-- * Input and Output
 ------------------------------------------------------------------
 
 -- ^ encoding for Japanese on Windows
-cpWin = "cp932" 
-type Encode = String 
+cpWin = "cp932"
+type Encode = String
 
--- | note : lines を使っているので \r\n がMac及びLinaxでは処理できない
+-- | note : lines を使っているので \r\n がUnixでは処理できない
 readCSVWin :: FilePath -> IO [[Text]]
-readCSVWin path    =   openFile path ReadMode  >>= \h 
-                    ->  mkTextEncoding cpWin 
+readCSVWin path    =   openFile path ReadMode  >>= \h
+                    ->  mkTextEncoding cpWin
                     >>= hSetEncoding h
-                    >>  TO.hGetContents h      >>= \cs 
-                    ->  return $ concat . runEval $ parMap parseCSVErr $ T.lines cs 
+                    >>  TO.hGetContents h      >>= \cs
+                    ->  return $ concat . runEval $ parMap parseCSVErr $ T.lines cs
 
-
+-- | note : lines を使っているので \r\n がUnixでは処理できない
 readCSV :: FilePath -> IO [[Text]]
-readCSV path   = openFile  path ReadMode   >>= \h 
-                ->  TO.hGetContents h      >>= \cs 
-                ->  return $ concat . runEval $ parMap parseCSVErr $ T.lines cs 
+readCSV path   = openFile  path ReadMode   >>= \h
+                ->  TO.hGetContents h      >>= \cs
+                ->  return $ concat . runEval $ parMap parseCSVErr $ T.lines cs
 
 -- | Convert to CSV format
 {-# INLINE toCsvStr #-}
 toCsvStr :: String -> String
-toCsvStr  = ((<> "\"") . ("\"" <>)) . (replace "\"" "\"\"")  
+toCsvStr  = ((<> "\"") . ("\"" <>)) . (replace "\"" "\"\"")
 
 {-# INLINE toCsvText #-}
-toCsvText :: Text -> Text 
-toCsvText  = ((<> quo) . (quo <>)) . (T.replace quo quoq)  
-    where 
+toCsvText :: Text -> Text
+toCsvText  = ((<> quo) . (quo <>)) . (T.replace quo quoq)
+    where
         quo  = T.pack "\""
         quoq = T.pack "\"\""
 
@@ -146,13 +144,13 @@ hPutCsvLn wHandle = (TO.hPutStrLn wHandle)
 -- | Use this if output data is not written in CSV formart
 -- once you use parser, use this.
 writeCSV :: FilePath -> [[Text]] -> IO ()
-writeCSV path xs   =  openFile path WriteMode >>= \handle 
+writeCSV path xs   =  openFile path WriteMode >>= \handle
                     -> mapM_ (hPutCsvLn handle) xs
                     >> hClose handle
 
 -- | Use this for CSV formatted files
 writeData :: FilePath -> [[Text]] -> IO ()
-writeData path xs   =  openFile path WriteMode >>= \handle 
+writeData path xs   =  openFile path WriteMode >>= \handle
                     -> mapM_ ((TO.hPutStrLn handle).T.concat.(L.intersperse (T.pack ","))) xs
                     >> hClose handle
 
@@ -167,23 +165,22 @@ instance Lift Text where
 
 {- | Load Csv File while compiling
 
-use this like, 
+use this like,
 
 aFile = getSingleCol $( loadCSVT "hoge.csv")
 
--} 
+-}
 loadCSV :: FilePath -> Q Exp
 loadCSV filepath = do
-    cs <-  runIO $ TO.readFile filepath 
+    cs <-  runIO $ TO.readFile filepath
     [e| cs |]
 
 getSingleCol :: Text -> [Text]
-getSingleCol xs = head $ transpose $ parseCSVErr xs
+getSingleCol ts = head $ transpose $ parseCSVErr ts
 
 getTwoColAsMap :: Text -> Map Text Text
-getTwoColAsMap xs =  let ys = transpose (parseCSVErr xs)
+getTwoColAsMap ts =  let ys = transpose (parseCSVErr ts)
           in Map.fromList $ zip (ys L.!! 0) (ys L.!! 1)
-
 
 
 
