@@ -160,8 +160,8 @@ writeData path xs   =  openFile path WriteMode >>= \handle
 -- * Load ; for TemplateHaskell
 ------------------------------------------------------------------
 
-instance Lift Text where
-  lift t = [| T.pack $(lift $ T.unpack t) |]
+-- instance Lift Text where
+--   lift t = [| T.pack $(lift $ T.unpack t) |]
 
 {- | Load Csv File while compiling
 
